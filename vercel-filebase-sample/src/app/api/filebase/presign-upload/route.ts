@@ -2,7 +2,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextResponse } from "next/server";
 import { buildObjectKey } from "@/lib/object-keys";
-import { getR2Client, getR2Config } from "@/lib/r2";
+import { getFilebaseClient, getFilebaseConfig } from "@/lib/filebase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       return jsonError("Ukuran maksimum sample ini 50 MB.");
     }
 
-    const config = getR2Config();
+    const config = getFilebaseConfig();
     const key = buildObjectKey(config.prefix, fileName);
     const command = new PutObjectCommand({
       Bucket: config.bucketName,
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       ContentType: contentType
     });
 
-    const uploadUrl = await getSignedUrl(getR2Client(), command, {
+    const uploadUrl = await getSignedUrl(getFilebaseClient(), command, {
       expiresIn: UPLOAD_URL_EXPIRES_SECONDS
     });
 

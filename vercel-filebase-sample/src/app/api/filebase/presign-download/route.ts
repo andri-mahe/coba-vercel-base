@@ -1,7 +1,7 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextResponse } from "next/server";
-import { getR2Client, getR2Config, isAllowedKey } from "@/lib/r2";
+import { getFilebaseClient, getFilebaseConfig, isAllowedKey } from "@/lib/filebase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as DownloadRequest;
     const key = body.key?.trim();
-    const config = getR2Config();
+    const config = getFilebaseConfig();
 
     if (!key || !isAllowedKey(key, config.prefix)) {
       return jsonError("Object key tidak valid.");
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       Key: key
     });
 
-    const downloadUrl = await getSignedUrl(getR2Client(), command, {
+    const downloadUrl = await getSignedUrl(getFilebaseClient(), command, {
       expiresIn: DOWNLOAD_URL_EXPIRES_SECONDS
     });
 

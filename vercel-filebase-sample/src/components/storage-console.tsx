@@ -63,7 +63,7 @@ export function StorageConsole() {
   async function loadObjects() {
     setRefreshing(true);
     try {
-      const data = await readJson<{ objects: StoredObject[] }>(await fetch("/api/r2/objects"));
+      const data = await readJson<{ objects: StoredObject[] }>(await fetch("/api/filebase/objects"));
       setObjects(data.objects);
     } catch (error) {
       setMessage({ type: "error", text: error instanceof Error ? error.message : "Gagal memuat object" });
@@ -83,7 +83,7 @@ export function StorageConsole() {
 
     try {
       const presign = await readJson<{ uploadUrl: string; key: string; headers: Record<string, string> }>(
-        await fetch("/api/r2/presign-upload", {
+        await fetch("/api/filebase/presign-upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -101,7 +101,7 @@ export function StorageConsole() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error(`Upload ke R2 gagal: ${uploadResponse.status}`);
+        throw new Error(`Upload ke Filebase gagal: ${uploadResponse.status}`);
       }
 
       setSelectedFile(null);
@@ -117,7 +117,7 @@ export function StorageConsole() {
   async function downloadObject(key: string) {
     try {
       const data = await readJson<{ downloadUrl: string }>(
-        await fetch("/api/r2/presign-download", {
+        await fetch("/api/filebase/presign-download", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key })
@@ -133,7 +133,7 @@ export function StorageConsole() {
     setLoading(true);
     try {
       await readJson<{ ok: true }>(
-        await fetch("/api/r2/objects", {
+        await fetch("/api/filebase/objects", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key })
@@ -157,7 +157,7 @@ export function StorageConsole() {
       <nav className="topbar" aria-label="Header">
         <div className="brand">
           <span className="mark" />
-          <span>Vercel R2 Lab</span>
+          <span>Vercel Filebase Lab</span>
         </div>
         <div className="status-pill">
           <ShieldCheck size={17} />
@@ -168,10 +168,10 @@ export function StorageConsole() {
       <section className="hero">
         <div className="headline">
           <p className="eyebrow">Cloud object storage demo</p>
-          <h1>Upload file langsung ke Cloudflare R2</h1>
+          <h1>Upload file langsung ke Filebase</h1>
           <p className="lead">
             Vercel hanya membuat URL bertanda tangan. File besar langsung bergerak
-            dari browser ke bucket R2, sehingga credential tetap aman dan function
+            dari browser ke bucket Filebase, sehingga credential tetap aman dan function
             tidak menjadi bottleneck.
           </p>
         </div>
@@ -186,8 +186,8 @@ export function StorageConsole() {
             <span>sign PUT and GET URLs with AWS SDK</span>
           </div>
           <div className="diagram-node">
-            <strong>3. Cloudflare R2</strong>
-            <span>S3-compatible bucket stores object</span>
+            <strong>3. Filebase bucket</strong>
+            <span>S3-compatible object storage</span>
           </div>
         </div>
       </section>
@@ -239,7 +239,7 @@ export function StorageConsole() {
           </div>
           <div className="status-pill">
             <DatabaseZap size={17} />
-            R2 prefix
+            Filebase prefix
           </div>
         </div>
 

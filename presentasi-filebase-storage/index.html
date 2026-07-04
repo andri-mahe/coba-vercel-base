@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Materi Kuliah Cloud Computing: Object Storage, Cloudflare R2, dan Vercel</title>
+    <title>Materi Kuliah Cloud Computing: Object Storage, Filebase, dan Vercel</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -25,17 +25,17 @@
 
         <article class="slide active intro" data-title="Judul">
           <div class="kicker">Cloud Computing - Object Storage</div>
-          <h1>Cloudflare R2 dan storage sejenis</h1>
+          <h1>Filebase dan storage S3-compatible</h1>
           <p class="lead">
             Materi kuliah untuk memahami object storage, pola arsitektur modern,
-            keamanan akses data, dan contoh implementasi Vercel + Cloudflare R2.
+            keamanan akses data, dan contoh implementasi Vercel + Filebase.
           </p>
           <div class="hero-grid" aria-label="Diagram ringkas">
             <div class="node client">Browser</div>
             <div class="wire"></div>
             <div class="node api">Vercel Function</div>
             <div class="wire"></div>
-            <div class="node bucket">R2 Bucket</div>
+            <div class="node bucket">Filebase Bucket</div>
           </div>
           <p class="meta">Durasi: 2 x 50 menit + praktikum 60 menit</p>
         </article>
@@ -58,7 +58,7 @@
             </div>
             <div>
               <strong>Membangun</strong>
-              <span>sample app Vercel yang menyimpan file ke R2.</span>
+              <span>sample app Vercel yang menyimpan file ke Filebase.</span>
             </div>
           </div>
         </article>
@@ -80,7 +80,7 @@
             <section class="highlight">
               <h3>Object storage</h3>
               <p>Data disimpan sebagai object dengan key, metadata, dan API HTTP.</p>
-              <code>R2, S3, GCS, Blob, MinIO</code>
+              <code>Filebase, S3, GCS, Blob, MinIO</code>
             </section>
           </div>
         </article>
@@ -104,33 +104,32 @@
           </div>
         </article>
 
-        <article class="slide" data-title="R2">
-          <div class="kicker">Cloudflare R2</div>
-          <h2>Posisi R2 dalam ekosistem cloud</h2>
+        <article class="slide" data-title="Filebase">
+          <div class="kicker">Filebase</div>
+          <h2>Posisi Filebase dalam ekosistem cloud</h2>
           <div class="split">
             <div>
               <p>
-                Cloudflare R2 adalah object storage S3-compatible yang dirancang
-                untuk menyimpan data dekat edge network Cloudflare. Kekuatan utamanya:
-                API kompatibel S3 dan tidak ada biaya egress ke Internet menurut
-                model pricing R2 saat ini.
+                Filebase adalah platform object storage S3-compatible. Developer
+                memakai access key, secret key, bucket, dan endpoint S3
+                <code>https://s3.filebase.io</code> untuk menghubungkan aplikasi.
               </p>
               <p>
-                Cocok untuk asset aplikasi, backup, data lake ringan, file sharing,
-                log archive, dan origin storage untuk aplikasi web.
+                Cocok untuk praktikum S3 API, penyimpanan asset aplikasi, file sharing,
+                backup sederhana, dan workflow yang ingin portabel antar layanan S3-compatible.
               </p>
             </div>
-            <div class="metric-stack" aria-label="Fitur utama R2">
+            <div class="metric-stack" aria-label="Fitur utama Filebase">
               <div><b>S3 API</b><span>SDK AWS bisa dipakai</span></div>
-              <div><b>Zero egress</b><span>Baik untuk distribusi file</span></div>
-              <div><b>Edge fit</b><span>Integrasi Workers dan CDN</span></div>
+              <div><b>Console keys</b><span>Access key dibuat di Filebase Keys</span></div>
+              <div><b>Portable</b><span>Route app tetap sama untuk S3-compatible provider</span></div>
             </div>
           </div>
         </article>
 
         <article class="slide" data-title="Banding">
           <div class="kicker">Service Comparison</div>
-          <h2>R2 dibanding storage sejenis</h2>
+          <h2>Filebase dibanding storage sejenis</h2>
           <table class="service-table">
             <thead>
               <tr>
@@ -141,9 +140,9 @@
             </thead>
             <tbody>
               <tr>
-                <td>Cloudflare R2</td>
-                <td>S3-compatible, biaya egress Internet tidak dikenakan</td>
-                <td>Bagus untuk app global dan asset delivery</td>
+                <td>Filebase</td>
+                <td>S3-compatible, setup key sederhana lewat dashboard</td>
+                <td>Bagus untuk praktikum S3 API dan app portable</td>
               </tr>
               <tr>
                 <td>Amazon S3</td>
@@ -188,8 +187,8 @@
           <div class="notes-grid">
             <p><strong>Class A</strong>: mutasi/list, misalnya PUT, COPY, POST, LIST.</p>
             <p><strong>Class B</strong>: baca object, misalnya GET dan HEAD.</p>
-            <p><strong>Egress</strong>: R2 tidak mengenakan biaya bandwidth keluar Internet pada pricing saat ini.</p>
-            <p><strong>Tradeoff</strong>: layanan murah di egress bisa tetap mahal bila aplikasi boros operasi LIST.</p>
+            <p><strong>Egress</strong>: cek pricing provider, karena biaya bandwidth bisa beda antar layanan.</p>
+            <p><strong>Tradeoff</strong>: layanan yang mudah dipakai tetap perlu quota, lifecycle, dan audit.</p>
           </div>
         </article>
 
@@ -205,11 +204,11 @@
             <div class="flow-step">
               <span>2</span>
               <b>API membuat presigned URL</b>
-              <p>Credential R2 tetap di server, URL berlaku singkat.</p>
+              <p>Credential Filebase tetap di server, URL berlaku singkat.</p>
             </div>
             <div class="flow-step">
               <span>3</span>
-              <b>Browser PUT langsung ke R2</b>
+              <b>Browser PUT langsung ke Filebase</b>
               <p>File tidak melewati memory dan limit request body Vercel.</p>
             </div>
             <div class="flow-step">
@@ -234,7 +233,7 @@
 
         <article class="slide" data-title="CORS">
           <div class="kicker">Browser Upload Gotcha</div>
-          <h2>CORS bucket harus mengizinkan PUT dari origin aplikasi</h2>
+          <h2>CORS bucket Filebase harus mengizinkan PUT dari origin aplikasi</h2>
           <div class="cors-grid">
             <div class="error-box">
               <strong>Gejala umum</strong>
@@ -251,8 +250,9 @@
               </ul>
             </div>
           </div>
-          <pre class="code-block"><code>CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... \
-npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force</code></pre>
+          <pre class="code-block"><code>AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... \
+aws --endpoint https://s3.filebase.io s3api put-bucket-cors \
+  --bucket nama-bucket --cors-configuration file://filebase-cors.example.json</code></pre>
         </article>
 
         <article class="slide" data-title="Konsistensi">
@@ -280,7 +280,7 @@ npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force<
 
         <article class="slide" data-title="Sample">
           <div class="kicker">Sample Project</div>
-          <h2>Vercel + Next.js + Cloudflare R2</h2>
+          <h2>Vercel + Next.js + Filebase</h2>
           <div class="architecture">
             <div class="lane">
               <span>Browser UI</span>
@@ -290,13 +290,13 @@ npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force<
             </div>
             <div class="lane accent">
               <span>Vercel Route Handlers</span>
-              <b>POST /presign-upload</b>
-              <b>GET /objects</b>
-              <b>POST /presign-download</b>
-              <b>DELETE /objects</b>
+              <b>POST /api/filebase/presign-upload</b>
+              <b>GET /api/filebase/objects</b>
+              <b>POST /api/filebase/presign-download</b>
+              <b>DELETE /api/filebase/objects</b>
             </div>
             <div class="lane">
-              <span>Cloudflare R2</span>
+              <span>Filebase</span>
               <b>bucket</b>
               <b>object metadata</b>
               <b>S3-compatible API</b>
@@ -308,11 +308,11 @@ npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force<
           <div class="kicker">Lab 60 Menit</div>
           <h2>Praktikum kelas</h2>
           <ol class="lab-list">
-            <li>Buat bucket R2 dan API token read/write terbatas.</li>
-            <li>Atur CORS untuk localhost dan domain Vercel memakai <code>r2-cors.example.json</code>.</li>
+            <li>Buat bucket Filebase dan access key di <code>https://console.filebase.com/keys</code>.</li>
+            <li>Atur CORS untuk localhost dan domain Vercel memakai <code>filebase-cors.example.json</code>.</li>
             <li>Isi <code>.env.local</code> pada sample project.</li>
             <li>Tes preflight OPTIONS: pastikan response memiliki <code>Access-Control-Allow-Origin</code>.</li>
-            <li>Jalankan <code>npm run dev</code>, upload file kecil, lalu cek object di dashboard R2.</li>
+            <li>Jalankan <code>npm run dev</code>, upload file kecil, lalu cek object di dashboard Filebase.</li>
             <li>Deploy ke Vercel dan pindahkan variable environment ke dashboard Vercel.</li>
           </ol>
         </article>
@@ -348,10 +348,9 @@ npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force<
           <div class="kicker">References</div>
           <h2>Sumber resmi untuk dibaca</h2>
           <ul class="sources">
-            <li><a href="https://developers.cloudflare.com/r2/" target="_blank" rel="noreferrer">Cloudflare R2 documentation</a></li>
-            <li><a href="https://developers.cloudflare.com/r2/api/s3/presigned-urls/" target="_blank" rel="noreferrer">R2 S3 presigned URLs</a></li>
-            <li><a href="https://developers.cloudflare.com/r2/pricing/" target="_blank" rel="noreferrer">R2 pricing</a></li>
-            <li><a href="https://developers.cloudflare.com/r2/buckets/cors/" target="_blank" rel="noreferrer">R2 CORS configuration</a></li>
+            <li><a href="https://filebase.com/docs/s3-api/overview" target="_blank" rel="noreferrer">Filebase S3-compatible API</a></li>
+            <li><a href="https://console.filebase.com/keys" target="_blank" rel="noreferrer">Filebase access keys</a></li>
+            <li><a href="https://filebase.com/docs/s3-api/cors" target="_blank" rel="noreferrer">Filebase CORS configuration</a></li>
             <li><a href="https://vercel.com/docs/functions" target="_blank" rel="noreferrer">Vercel Functions</a></li>
             <li><a href="https://vercel.com/docs/frameworks/nextjs" target="_blank" rel="noreferrer">Vercel Next.js deployment</a></li>
           </ul>

@@ -1,7 +1,6 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-export type R2Config = {
-  accountId: string;
+export type FilebaseConfig = {
   accessKeyId: string;
   secretAccessKey: string;
   bucketName: string;
@@ -23,25 +22,22 @@ function normalizePrefix(value: string | undefined) {
   return (value ?? "classroom-uploads").replace(/^\/+|\/+$/g, "");
 }
 
-export function getR2Config(): R2Config {
-  const accountId = requiredEnv("R2_ACCOUNT_ID");
-
+export function getFilebaseConfig(): FilebaseConfig {
   return {
-    accountId,
-    accessKeyId: requiredEnv("R2_ACCESS_KEY_ID"),
-    secretAccessKey: requiredEnv("R2_SECRET_ACCESS_KEY"),
-    bucketName: requiredEnv("R2_BUCKET_NAME"),
-    prefix: normalizePrefix(process.env.R2_PREFIX),
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`
+    accessKeyId: requiredEnv("FILEBASE_ACCESS_KEY_ID"),
+    secretAccessKey: requiredEnv("FILEBASE_SECRET_ACCESS_KEY"),
+    bucketName: requiredEnv("FILEBASE_BUCKET_NAME"),
+    prefix: normalizePrefix(process.env.FILEBASE_PREFIX),
+    endpoint: process.env.FILEBASE_ENDPOINT ?? "https://s3.filebase.io"
   };
 }
 
-export function getR2Client() {
+export function getFilebaseClient() {
   if (cachedClient) {
     return cachedClient;
   }
 
-  const config = getR2Config();
+  const config = getFilebaseConfig();
   cachedClient = new S3Client({
     region: "auto",
     endpoint: config.endpoint,

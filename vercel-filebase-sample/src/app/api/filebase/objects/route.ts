@@ -1,6 +1,6 @@
 import { DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
-import { getR2Client, getR2Config, isAllowedKey } from "@/lib/r2";
+import { getFilebaseClient, getFilebaseConfig, isAllowedKey } from "@/lib/filebase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,8 +15,8 @@ function jsonError(message: string, status = 400) {
 
 export async function GET() {
   try {
-    const config = getR2Config();
-    const list = await getR2Client().send(
+    const config = getFilebaseConfig();
+    const list = await getFilebaseClient().send(
       new ListObjectsV2Command({
         Bucket: config.bucketName,
         Prefix: config.prefix ? `${config.prefix}/` : undefined,
@@ -42,13 +42,13 @@ export async function DELETE(request: Request) {
   try {
     const body = (await request.json()) as DeleteRequest;
     const key = body.key?.trim();
-    const config = getR2Config();
+    const config = getFilebaseConfig();
 
     if (!key || !isAllowedKey(key, config.prefix)) {
       return jsonError("Object key tidak valid.");
     }
 
-    await getR2Client().send(
+    await getFilebaseClient().send(
       new DeleteObjectCommand({
         Bucket: config.bucketName,
         Key: key
