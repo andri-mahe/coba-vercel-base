@@ -1,0 +1,17 @@
+{
+  "name": "cloudflare-r2-course-materials",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix vercel-filebase-sample run dev",
+    "build": "npm --prefix vercel-filebase-sample run build",
+    "start": "npm --prefix vercel-filebase-sample run start"
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}
