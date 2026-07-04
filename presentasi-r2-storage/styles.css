@@ -293,6 +293,7 @@ label {
 .comparison,
 .notes-grid,
 .principles,
+.cors-grid,
 .rubric {
   display: grid;
   gap: 18px;
@@ -308,6 +309,8 @@ label {
 .metric-stack div,
 .notes-grid p,
 .principles div,
+.cors-card,
+.error-box,
 .rubric div,
 .questions p,
 .flow-step {
@@ -438,8 +441,60 @@ th {
 
 .notes-grid,
 .principles,
+.cors-grid,
 .rubric {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.error-box {
+  border-color: rgba(178, 58, 40, 0.28);
+  background: rgba(178, 58, 40, 0.09);
+}
+
+.cors-card {
+  background: rgba(8, 126, 120, 0.09);
+}
+
+.error-box strong,
+.cors-card strong {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 24px;
+}
+
+.error-box code {
+  display: block;
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+  color: #8f2719;
+}
+
+.cors-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.cors-card li {
+  margin-bottom: 10px;
+}
+
+.code-block {
+  margin: 28px 0 0;
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid rgba(23, 18, 13, 0.16);
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.code-block code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
 }
 
 .flow {
@@ -598,6 +653,7 @@ th {
   .three,
   .notes-grid,
   .principles,
+  .cors-grid,
   .architecture,
   .questions,
   .rubric,

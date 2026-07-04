@@ -16,7 +16,15 @@ Sample project untuk praktikum cloud computing. App ini memakai Next.js Route Ha
 1. Buat bucket R2.
 2. Buat R2 API token dengan scope minimal: object read dan write untuk bucket yang dipakai.
 3. Salin Account ID, Access Key ID, Secret Access Key, dan nama bucket.
-4. Atur CORS bucket untuk local dev dan domain Vercel:
+4. Atur CORS bucket untuk local dev dan domain Vercel. Dengan Wrangler:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id \
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token \
+npx wrangler r2 bucket cors set your_bucket_name --file r2-cors.example.json --force
+```
+
+Konfigurasi dashboard ekuivalen:
 
 ```json
 [

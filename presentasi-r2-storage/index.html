@@ -232,6 +232,29 @@
           </div>
         </article>
 
+        <article class="slide" data-title="CORS">
+          <div class="kicker">Browser Upload Gotcha</div>
+          <h2>CORS bucket harus mengizinkan PUT dari origin aplikasi</h2>
+          <div class="cors-grid">
+            <div class="error-box">
+              <strong>Gejala umum</strong>
+              <code>No 'Access-Control-Allow-Origin' header is present</code>
+              <p>Browser memblokir request sebelum file dikirim karena preflight OPTIONS gagal.</p>
+            </div>
+            <div class="cors-card">
+              <strong>Rule minimum untuk praktikum</strong>
+              <ul>
+                <li>Origins: <code>http://localhost:3000</code> dan domain Vercel final.</li>
+                <li>Methods: <code>GET</code>, <code>PUT</code>, <code>HEAD</code>, opsional <code>DELETE</code>.</li>
+                <li>Headers: <code>Content-Type</code> karena upload mengirim MIME file.</li>
+                <li>Expose: <code>ETag</code> agar response upload bisa dibaca browser.</li>
+              </ul>
+            </div>
+          </div>
+          <pre class="code-block"><code>CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... \
+npx wrangler r2 bucket cors set nama-bucket --file r2-cors.example.json --force</code></pre>
+        </article>
+
         <article class="slide" data-title="Konsistensi">
           <div class="kicker">Reliability</div>
           <h2>Object storage kuat, tapi pola akses tetap menentukan</h2>
@@ -286,8 +309,9 @@
           <h2>Praktikum kelas</h2>
           <ol class="lab-list">
             <li>Buat bucket R2 dan API token read/write terbatas.</li>
-            <li>Atur CORS untuk localhost dan domain Vercel.</li>
+            <li>Atur CORS untuk localhost dan domain Vercel memakai <code>r2-cors.example.json</code>.</li>
             <li>Isi <code>.env.local</code> pada sample project.</li>
+            <li>Tes preflight OPTIONS: pastikan response memiliki <code>Access-Control-Allow-Origin</code>.</li>
             <li>Jalankan <code>npm run dev</code>, upload file kecil, lalu cek object di dashboard R2.</li>
             <li>Deploy ke Vercel dan pindahkan variable environment ke dashboard Vercel.</li>
           </ol>
