@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd vercel-filebase-sample && npm install && npm run build",
+  "buildCommand": "if [ -d vercel-filebase-sample ]; then cd vercel-filebase-sample; fi; npm install && npm run build",
   "outputDirectory": "vercel-filebase-sample/.next"
 }
