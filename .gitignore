@@ -1,0 +1,17 @@
+.DS_Store
+
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+out/
+build/
+*.log
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Vercel local link metadata
+.vercel/

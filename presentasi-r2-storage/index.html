@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Materi Kuliah Cloud Computing: Object Storage, Cloudflare R2, dan Vercel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="deck" aria-live="polite">
+      <aside class="rail" aria-label="Navigasi slide">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span>Cloud Storage</span>
+        </div>
+        <ol id="slideList" class="slide-list"></ol>
+        <div class="controls">
+          <button id="prevBtn" type="button" aria-label="Slide sebelumnya">Prev</button>
+          <button id="nextBtn" type="button" aria-label="Slide berikutnya">Next</button>
+        </div>
+      </aside>
+
+      <section class="stage">
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+        <article class="slide active intro" data-title="Judul">
+          <div class="kicker">Cloud Computing - Object Storage</div>
+          <h1>Cloudflare R2 dan storage sejenis</h1>
+          <p class="lead">
+            Materi kuliah untuk memahami object storage, pola arsitektur modern,
+            keamanan akses data, dan contoh implementasi Vercel + Cloudflare R2.
+          </p>
+          <div class="hero-grid" aria-label="Diagram ringkas">
+            <div class="node client">Browser</div>
+            <div class="wire"></div>
+            <div class="node api">Vercel Function</div>
+            <div class="wire"></div>
+            <div class="node bucket">R2 Bucket</div>
+          </div>
+          <p class="meta">Durasi: 2 x 50 menit + praktikum 60 menit</p>
+        </article>
+
+        <article class="slide" data-title="Capaian">
+          <div class="kicker">Learning Outcomes</div>
+          <h2>Setelah sesi ini, mahasiswa mampu</h2>
+          <div class="outcome-grid">
+            <div>
+              <strong>Menjelaskan</strong>
+              <span>perbedaan block, file, dan object storage.</span>
+            </div>
+            <div>
+              <strong>Mendesain</strong>
+              <span>alur upload aman dengan presigned URL.</span>
+            </div>
+            <div>
+              <strong>Menghitung</strong>
+              <span>komponen biaya: storage, operasi, egress, dan request.</span>
+            </div>
+            <div>
+              <strong>Membangun</strong>
+              <span>sample app Vercel yang menyimpan file ke R2.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Taksonomi">
+          <div class="kicker">Storage Taxonomy</div>
+          <h2>Tiga model penyimpanan utama di cloud</h2>
+          <div class="comparison three">
+            <section>
+              <h3>Block storage</h3>
+              <p>Volume mentah untuk VM, database, dan workload yang perlu IOPS stabil.</p>
+              <code>EBS, Persistent Disk</code>
+            </section>
+            <section>
+              <h3>File storage</h3>
+              <p>Filesystem bersama dengan folder dan permission POSIX/SMB/NFS.</p>
+              <code>EFS, Filestore, Azure Files</code>
+            </section>
+            <section class="highlight">
+              <h3>Object storage</h3>
+              <p>Data disimpan sebagai object dengan key, metadata, dan API HTTP.</p>
+              <code>R2, S3, GCS, Blob, MinIO</code>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Object">
+          <div class="kicker">Object Storage Model</div>
+          <h2>Object storage bukan filesystem biasa</h2>
+          <div class="object-model">
+            <div class="bucket-visual">
+              <span>bucket</span>
+              <div>reports/2026/q1.pdf</div>
+              <div>media/avatar.png</div>
+              <div>logs/app-0001.jsonl</div>
+            </div>
+            <ul>
+              <li><strong>Bucket</strong> menjadi namespace global di layanan storage.</li>
+              <li><strong>Key</strong> adalah path logis, bukan folder fisik.</li>
+              <li><strong>Metadata</strong> menyimpan content-type, etag, size, dan custom tag.</li>
+              <li><strong>API</strong> memakai HTTP verbs: PUT, GET, HEAD, DELETE, LIST.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="slide" data-title="R2">
+          <div class="kicker">Cloudflare R2</div>
+          <h2>Posisi R2 dalam ekosistem cloud</h2>
+          <div class="split">
+            <div>
+              <p>
+                Cloudflare R2 adalah object storage S3-compatible yang dirancang
+                untuk menyimpan data dekat edge network Cloudflare. Kekuatan utamanya:
+                API kompatibel S3 dan tidak ada biaya egress ke Internet menurut
+                model pricing R2 saat ini.
+              </p>
+              <p>
+                Cocok untuk asset aplikasi, backup, data lake ringan, file sharing,
+                log archive, dan origin storage untuk aplikasi web.
+              </p>
+            </div>
+            <div class="metric-stack" aria-label="Fitur utama R2">
+              <div><b>S3 API</b><span>SDK AWS bisa dipakai</span></div>
+              <div><b>Zero egress</b><span>Baik untuk distribusi file</span></div>
+              <div><b>Edge fit</b><span>Integrasi Workers dan CDN</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Banding">
+          <div class="kicker">Service Comparison</div>
+          <h2>R2 dibanding storage sejenis</h2>
+          <table class="service-table">
+            <thead>
+              <tr>
+                <th>Layanan</th>
+                <th>Kekuatan</th>
+                <th>Catatan desain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cloudflare R2</td>
+                <td>S3-compatible, biaya egress Internet tidak dikenakan</td>
+                <td>Bagus untuk app global dan asset delivery</td>
+              </tr>
+              <tr>
+                <td>Amazon S3</td>
+                <td>Ekosistem paling matang, storage class lengkap</td>
+                <td>Perhatikan biaya egress dan request lintas region</td>
+              </tr>
+              <tr>
+                <td>Google Cloud Storage</td>
+                <td>Integrasi kuat dengan analytics dan Google Cloud</td>
+                <td>IAM dan lifecycle policy perlu dirancang sejak awal</td>
+              </tr>
+              <tr>
+                <td>Azure Blob</td>
+                <td>Integrasi enterprise Microsoft</td>
+                <td>Access tier memengaruhi biaya baca dan penyimpanan</td>
+              </tr>
+              <tr>
+                <td>MinIO</td>
+                <td>Self-hosted S3-compatible</td>
+                <td>Operasional, backup, dan HA menjadi tanggung jawab tim</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="slide" data-title="Biaya">
+          <div class="kicker">Cost Model</div>
+          <h2>Biaya object storage dibaca sebagai persamaan</h2>
+          <div class="formula">
+            <span>Total</span>
+            <b>=</b>
+            <span>GB-month</span>
+            <b>+</b>
+            <span>Class A ops</span>
+            <b>+</b>
+            <span>Class B ops</span>
+            <b>+</b>
+            <span>egress</span>
+            <b>+</b>
+            <span>fitur ekstra</span>
+          </div>
+          <div class="notes-grid">
+            <p><strong>Class A</strong>: mutasi/list, misalnya PUT, COPY, POST, LIST.</p>
+            <p><strong>Class B</strong>: baca object, misalnya GET dan HEAD.</p>
+            <p><strong>Egress</strong>: R2 tidak mengenakan biaya bandwidth keluar Internet pada pricing saat ini.</p>
+            <p><strong>Tradeoff</strong>: layanan murah di egress bisa tetap mahal bila aplikasi boros operasi LIST.</p>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Pola">
+          <div class="kicker">Architecture Pattern</div>
+          <h2>Jangan proxy file besar lewat serverless function</h2>
+          <div class="flow">
+            <div class="flow-step">
+              <span>1</span>
+              <b>Client minta izin upload</b>
+              <p>Browser kirim nama file dan content-type ke API Vercel.</p>
+            </div>
+            <div class="flow-step">
+              <span>2</span>
+              <b>API membuat presigned URL</b>
+              <p>Credential R2 tetap di server, URL berlaku singkat.</p>
+            </div>
+            <div class="flow-step">
+              <span>3</span>
+              <b>Browser PUT langsung ke R2</b>
+              <p>File tidak melewati memory dan limit request body Vercel.</p>
+            </div>
+            <div class="flow-step">
+              <span>4</span>
+              <b>App menyimpan metadata</b>
+              <p>Database opsional menyimpan owner, status, dan audit trail.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Aman">
+          <div class="kicker">Security Checklist</div>
+          <h2>Kontrol keamanan minimum</h2>
+          <div class="checklist">
+            <label><input type="checkbox" checked disabled /> API token dibatasi ke bucket dan permission yang perlu.</label>
+            <label><input type="checkbox" checked disabled /> Secret hanya berada di Vercel Environment Variables.</label>
+            <label><input type="checkbox" checked disabled /> Presigned URL punya expiry pendek dan prefix key terkendali.</label>
+            <label><input type="checkbox" checked disabled /> CORS hanya membuka origin aplikasi, bukan wildcard production.</label>
+            <label><input type="checkbox" checked disabled /> Validasi MIME, ukuran, auth user, quota, dan audit log.</label>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Konsistensi">
+          <div class="kicker">Reliability</div>
+          <h2>Object storage kuat, tapi pola akses tetap menentukan</h2>
+          <div class="principles">
+            <div>
+              <h3>Key design</h3>
+              <p>Gunakan prefix bermakna: <code>tenant/date/uuid-name.ext</code>. Hindari key yang mudah ditebak untuk data sensitif.</p>
+            </div>
+            <div>
+              <h3>Lifecycle</h3>
+              <p>Atur retensi, penghapusan object sementara, dan tiering bila layanan mendukung.</p>
+            </div>
+            <div>
+              <h3>Recovery</h3>
+              <p>Untuk data penting, pertimbangkan versioning, backup bucket, dan replikasi lintas penyedia.</p>
+            </div>
+            <div>
+              <h3>Observability</h3>
+              <p>Catat request ID, key prefix, ukuran file, durasi upload, dan error storage.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Sample">
+          <div class="kicker">Sample Project</div>
+          <h2>Vercel + Next.js + Cloudflare R2</h2>
+          <div class="architecture">
+            <div class="lane">
+              <span>Browser UI</span>
+              <b>select file</b>
+              <b>PUT file</b>
+              <b>open download</b>
+            </div>
+            <div class="lane accent">
+              <span>Vercel Route Handlers</span>
+              <b>POST /presign-upload</b>
+              <b>GET /objects</b>
+              <b>POST /presign-download</b>
+              <b>DELETE /objects</b>
+            </div>
+            <div class="lane">
+              <span>Cloudflare R2</span>
+              <b>bucket</b>
+              <b>object metadata</b>
+              <b>S3-compatible API</b>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Praktikum">
+          <div class="kicker">Lab 60 Menit</div>
+          <h2>Praktikum kelas</h2>
+          <ol class="lab-list">
+            <li>Buat bucket R2 dan API token read/write terbatas.</li>
+            <li>Atur CORS untuk localhost dan domain Vercel.</li>
+            <li>Isi <code>.env.local</code> pada sample project.</li>
+            <li>Jalankan <code>npm run dev</code>, upload file kecil, lalu cek object di dashboard R2.</li>
+            <li>Deploy ke Vercel dan pindahkan variable environment ke dashboard Vercel.</li>
+          </ol>
+        </article>
+
+        <article class="slide" data-title="Evaluasi">
+          <div class="kicker">Assessment</div>
+          <h2>Rubrik tugas</h2>
+          <div class="rubric">
+            <div><b>30%</b><span>Diagram arsitektur dan alasan pemilihan layanan storage.</span></div>
+            <div><b>25%</b><span>Implementasi upload aman dengan presigned URL.</span></div>
+            <div><b>20%</b><span>Analisis biaya untuk 100 GB data dan 1 juta request.</span></div>
+            <div><b>15%</b><span>Security checklist: CORS, secret, prefix, auth, quota.</span></div>
+            <div><b>10%</b><span>Demo deploy Vercel dan dokumentasi singkat.</span></div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Diskusi">
+          <div class="kicker">Discussion Case</div>
+          <h2>Studi kasus: platform tugas mahasiswa</h2>
+          <p class="lead">
+            Kampus ingin menerima upload PDF tugas, menyimpan selama 1 tahun,
+            dan dosen dapat mengunduh kapan saja.
+          </p>
+          <div class="questions">
+            <p>Bagaimana struktur key agar mudah audit per mata kuliah?</p>
+            <p>Apakah bucket harus public atau private?</p>
+            <p>Di mana metadata nilai, owner, dan deadline disimpan?</p>
+            <p>Apa risiko jika presigned URL berlaku 24 jam?</p>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Sumber">
+          <div class="kicker">References</div>
+          <h2>Sumber resmi untuk dibaca</h2>
+          <ul class="sources">
+            <li><a href="https://developers.cloudflare.com/r2/" target="_blank" rel="noreferrer">Cloudflare R2 documentation</a></li>
+            <li><a href="https://developers.cloudflare.com/r2/api/s3/presigned-urls/" target="_blank" rel="noreferrer">R2 S3 presigned URLs</a></li>
+            <li><a href="https://developers.cloudflare.com/r2/pricing/" target="_blank" rel="noreferrer">R2 pricing</a></li>
+            <li><a href="https://developers.cloudflare.com/r2/buckets/cors/" target="_blank" rel="noreferrer">R2 CORS configuration</a></li>
+            <li><a href="https://vercel.com/docs/functions" target="_blank" rel="noreferrer">Vercel Functions</a></li>
+            <li><a href="https://vercel.com/docs/frameworks/nextjs" target="_blank" rel="noreferrer">Vercel Next.js deployment</a></li>
+          </ul>
+          <p class="meta">Gunakan panah kiri/kanan atau tombol Prev/Next untuk navigasi.</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
